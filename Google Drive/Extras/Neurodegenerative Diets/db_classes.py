@@ -17,6 +17,8 @@ class User(Base):
     email = Column(String)
     first = Column(String)
     last = Column(String)
+    age = Column(Integer)
+    gender = Column(Integer)
     diagnosis = Column(Integer, ForeignKey('diseases.id'))
 
 class Diets(Base):
