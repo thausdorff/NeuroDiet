@@ -25,17 +25,27 @@ class Diets(Base):
     __tablename__ = "diets"
     id = Column(Integer, primary_key=True)
     name = Column(String)
-    # item = relationship("Item", back_populates='diets')
+    rating = relationship("Rating", back_populates= "diet") 
 
 class Item(Base):
     __tablename__ = "item"
     id = Column(Integer, primary_key=True)
     name = Column(String)
-    good_for_diet_ids = Column(Integer, ForeignKey("diets.id"))
-    bad_for_diet_ids = Column(Integer, ForeignKey("diets.id"))
+    rating = relationship("Rating", back_populates= "item")
+    # good_for_diet_ids = Column(Integer, ForeignKey("diets.id"))
+    # bad_for_diet_ids = Column(Integer, ForeignKey("diets.id"))
 
-    good_for_diet = relationship("Diets", foreign_keys=[good_for_diet_ids])
-    bad_for_diet = relationship("Diets", foreign_keys=[bad_for_diet_ids])
+    # good_for_diet = relationship("Diets", foreign_keys=[good_for_diet_ids])
+    # bad_for_diet = relationship("Diets", foreign_keys=[bad_for_diet_ids])
+
+class Rating(Base):
+    __tablename__ = "ratings"
+    id = Column(Integer, primary_key = True)
+    diet_id = Column(Integer, ForeignKey("diets.id"))
+    diet = relationship("Diets", back_populates= "rating")
+    item_id = Column(Integer, ForeignKey("item.id"))
+    item = relationship("Item", back_populates= "rating")
+    good = Column(Boolean, nullable = False)
 
 class Diseases(Base):
     __tablename__ = "diseases"
@@ -54,10 +64,17 @@ def create_diets():
     session.commit()
 
 def add_test_food():
-    foods = ["Red Meat, "Mediterranean", "MIND", "Vegan"]), ("Fish", ["Mediterranean"], ["Vegan"])]
+    foods = ["Red Meat", "Fish", "Tomato", "Green Apple", "Chicken", "Nuts"]
     for food in foods:
-        item = Item(name= food[0], good_for_diet= food[1], bad_for_diet= food[2])
-        session.add(item)
+        session.add(Item(name=food))
+    session.commit()
+
+def add_rating():
+    foods = ["Red Meat", "Fish", "Tomato", "Green Apple", "Chicken", "Nuts"]
+    for food in foods:
+        item = session.query(Item).filter(Item.name == food).first()
+        diet = session.query(Diets).filter(Diets.name == diet).first()
+        session.add(Rating(diet_id = diet.id, item_id = item.id, good = False))
     session.commit()
 
 Base.metadata.create_all(engine)
